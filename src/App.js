@@ -6,65 +6,91 @@ import './Input.css';
 
 function App(props) {
 
-  const [newNote, setNewNote] = useState('')
-  const[notes, setNotes] = useState(props.notes)
+  const [newPhoneBook, setNewPhoneBook] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const[phonebook, setphonebook] = useState(props.phonebook)
   const[showAll, setShowAll] = useState(true)
+  const[searchInput, setSearchInput] = useState('')
 
-  const notesToShow = showAll 
-  ? notes
-  : notes.filter(n => n.important == true)
+  const phonebookToShow = showAll 
+  ? phonebook
+  : phonebook.filter(n => n.important == true)
 
   // useEffect(() => {
-  //   axios.get('http://localhost:3001/notes')
+  //   axios.get('http://localhost:3001/phonebook')
   //     .then((response) => {
   //       console.log(response)
-  //       setNotes(response.data)
+  //       setphonebook(response.data)
   //     })
   // },[])
 
   const handleInputChange = (event) => {
     console.log(event.target.value)
-    setNewNote(event.target.value)
+    setNewPhoneBook(event.target.value)
+  }
+
+  const handleNumber = (event) => {
+    setNewNumber(event.target.value)
   }
 
   const handleAdd = (event) => {
     event.preventDefault()
     // console.log(event.target)
     // alert('Testing...')
-    const note = {
-      id: notes.length + 1,
-      content: newNote,
+    const booknum = {
+      id: phonebook.length + 1,
+      name: newPhoneBook,
+      number: newNumber,
       date: new Date().toString(),
-      important: Math.random() < 0.5
     }
-    if(newNote != '') setNotes(notes.concat(note))
-    setNewNote('')
+    if(newPhoneBook != '' && newNumber != '') setphonebook(phonebook.concat(booknum))
+    setNewPhoneBook('')
+    setNewNumber('')
   }
 
   const handleDelete = (id) => {
     // alert(id)
-    var confirm = window.confirm(`Are you sure you want to delete note ${id}`) 
-    if (confirm) setNotes(notes.filter(note => note.id !== id))
+    var confirm = window.confirm(`Are you sure you want to delete Number ${id}`) 
+    if (confirm) setphonebook(phonebook.filter(booknum => booknum.id !== id))
+  }
+
+  const handleSearch = (event) => {
+    console.log(event.target.value)
+    setSearchInput(event.target.value);
+  }
+
+  const handleSearchBtn = (event) => {
+    event.preventDefault();
+    if (searchInput.length>0) {
+      setphonebook(phonebook.filter((booknum) => {
+        return booknum.name.match(searchInput);
+      }))
+      }
+      
   }
 
   return (
     <>
     <div className='list'>
       <div className='inp'>
-        <form>
-          <input value={newNote} onChange={handleInputChange} />
-          <button onClick={handleAdd}>Add</button>
-        </form>
-        <button onClick={()=> setShowAll(!showAll)}> {showAll ? 'Show Important' :'Show All'}</button>
-      </div>
+        <h2>Phone Book</h2>
         
-      <h2>Notes</h2>
+      </div>
+      <h2>Add an entry</h2>
+      <form>
+          Search: <input value={searchInput} onChange={handleSearch}/>
+          <button className='btn' onClick={handleSearchBtn}>Search</button>
+          Name: <input value={newPhoneBook} onChange={handleInputChange}/>
+          Number: <input value={newNumber} onChange={handleNumber} type='number'/>
+          <button onClick={handleAdd}>Add</button>
+      </form>
+      <h2>Entries</h2>
       <ul>
-        {notesToShow.map(note => 
-        <li key={note.id}>
-          {note.content}
-          <p>{note.date}</p>
-          <button className='btn' onClick={() => handleDelete(note.id)}>Delete</button>
+        {phonebookToShow.filter(booknum => booknum.name.toLowerCase().includes(searchInput)).map(booknum => 
+        <li key={booknum.id}>
+          <p>{booknum.name}</p>
+          <p>{booknum.number}</p>
+          <button className='btn del' onClick={() => handleDelete(booknum.id)}>Delete</button>
         </li>)}
       </ul>
     </div>
